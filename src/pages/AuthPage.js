@@ -1,12 +1,14 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function AuthPage() {
   const [mode, setMode] = useState("login");
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name:"", email:"", password:"" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const { login, register } = useAuth();
+  const navigate = useNavigate();
 
   const friendly = (code) => ({
     "auth/email-already-in-use": "Email already registered.",
@@ -18,10 +20,13 @@ export default function AuthPage() {
   const handleSubmit = async (e) => {
     e.preventDefault(); setError(""); setLoading(true);
     try {
-      if (mode === "login") await login(form.email, form.password);
-      else {
+      if (mode === "login") {
+        await login(form.email, form.password);
+        navigate("/dashboard");
+      } else {
         if (!form.name.trim()) { setError("Name is required."); setLoading(false); return; }
         await register(form.name.trim(), form.email, form.password);
+        navigate("/setup");
       }
     } catch (err) { setError(friendly(err.code)); }
     finally { setLoading(false); }
@@ -52,18 +57,18 @@ export default function AuthPage() {
             <div className="auth-field">
               <label className="auth-label">Full name</label>
               <input className="auth-input" type="text" placeholder="Your name"
-                value={form.name} onChange={e => setForm({...form, name: e.target.value})} required autoFocus/>
+                value={form.name} onChange={e => setForm({...form, name:e.target.value})} required autoFocus/>
             </div>
           )}
           <div className="auth-field">
             <label className="auth-label">Work email</label>
             <input className="auth-input" type="email" placeholder="you@company.com"
-              value={form.email} onChange={e => setForm({...form, email: e.target.value})} required/>
+              value={form.email} onChange={e => setForm({...form, email:e.target.value})} required/>
           </div>
           <div className="auth-field">
             <label className="auth-label">Password</label>
             <input className="auth-input" type="password" placeholder="••••••••"
-              value={form.password} onChange={e => setForm({...form, password: e.target.value})} required minLength={6}/>
+              value={form.password} onChange={e => setForm({...form, password:e.target.value})} required minLength={6}/>
           </div>
           {error && <div className="auth-error">{error}</div>}
           <button type="submit" className="auth-btn" disabled={loading}>
