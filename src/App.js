@@ -9,31 +9,17 @@ import DashboardPage from "./pages/DashboardPage";
 const ComingSoon = ({ name }) => (
   <div style={{
     flex:1, display:"flex", flexDirection:"column", alignItems:"center",
-    justifyContent:"center", gap:12, color:"var(--text-2)",
-    height:"100%", padding:40
+    justifyContent:"center", gap:12, color:"var(--text-2)", height:"100%", padding:40
   }}>
-    <div style={{
-      width:64, height:64, borderRadius:16,
-      background:"var(--accent-bg)", border:"1.5px solid var(--accent-bd)",
-      display:"flex", alignItems:"center", justifyContent:"center", fontSize:28
-    }}>
-      🚧
-    </div>
+    <div style={{ width:64, height:64, borderRadius:16, background:"var(--accent-bg)", border:"1.5px solid var(--accent-bd)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:28 }}>🚧</div>
     <h2 style={{fontSize:20, fontWeight:700, color:"var(--text)", letterSpacing:"-.02em"}}>{name}</h2>
-    <p style={{fontSize:14, color:"var(--text-2)", textAlign:"center", maxWidth:300}}>
-      This module is coming soon. The foundation is ready — features are being built on top.
-    </p>
-    <div style={{
-      background:"var(--accent-bg)", border:"1px solid var(--accent-bd)",
-      borderRadius:20, padding:"4px 14px",
-      fontSize:12, fontWeight:700, color:"var(--accent-2)", letterSpacing:".04em"
-    }}>
-      IN DEVELOPMENT
-    </div>
+    <p style={{fontSize:14, color:"var(--text-2)", textAlign:"center", maxWidth:300}}>This module is coming soon.</p>
+    <div style={{ background:"var(--accent-bg)", border:"1px solid var(--accent-bd)", borderRadius:20, padding:"4px 14px", fontSize:12, fontWeight:700, color:"var(--accent-2)" }}>IN DEVELOPMENT</div>
   </div>
 );
 
-function Guard({ children }) {
+// Guards defined INSIDE AppRoutes so they're inside BrowserRouter + Providers
+function AuthGuard({ children }) {
   const { user, loading } = useAuth();
   if (loading) return (
     <div className="splash">
@@ -46,45 +32,45 @@ function Guard({ children }) {
       <span>Nexus Office</span>
     </div>
   );
-  if (!user) return <Navigate to="/auth" replace/>;
+  if (!user) return <Navigate to="/auth" replace />;
   return children;
 }
 
 function WorkspaceGuard({ children }) {
   const { workspaces, loading } = useWorkspace();
   if (loading) return null;
-  if (workspaces.length === 0) return <Navigate to="/setup" replace/>;
+  if (workspaces.length === 0) return <Navigate to="/setup" replace />;
   return children;
 }
 
 function AppRoutes() {
   return (
     <Routes>
-      <Route path="/auth" element={<AuthPage/>}/>
-      <Route path="/setup" element={<Guard><WorkspaceSetup/></Guard>}/>
-      <Route element={<Guard><WorkspaceGuard><MainLayout/></WorkspaceGuard></Guard>}>
-        <Route path="/dashboard" element={<DashboardPage/>}/>
-        <Route path="/chat"      element={<ComingSoon name="Messages"/>}/>
-        <Route path="/tasks"     element={<ComingSoon name="Tasks & Projects"/>}/>
-        <Route path="/docs"      element={<ComingSoon name="Documents"/>}/>
-        <Route path="/projects"  element={<ComingSoon name="Projects"/>}/>
-        <Route path="/calls"     element={<ComingSoon name="Video Calls"/>}/>
-        <Route path="/email"     element={<ComingSoon name="Email"/>}/>
-        <Route path="/settings"  element={<ComingSoon name="Settings"/>}/>
+      <Route path="/auth" element={<AuthPage />} />
+      <Route path="/setup" element={<AuthGuard><WorkspaceSetup /></AuthGuard>} />
+      <Route element={<AuthGuard><WorkspaceGuard><MainLayout /></WorkspaceGuard></AuthGuard>}>
+        <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/chat"     element={<ComingSoon name="Messages" />} />
+        <Route path="/tasks"    element={<ComingSoon name="Tasks & Projects" />} />
+        <Route path="/docs"     element={<ComingSoon name="Documents" />} />
+        <Route path="/projects" element={<ComingSoon name="Projects" />} />
+        <Route path="/calls"    element={<ComingSoon name="Video Calls" />} />
+        <Route path="/email"    element={<ComingSoon name="Email" />} />
+        <Route path="/settings" element={<ComingSoon name="Settings" />} />
       </Route>
-      <Route path="*" element={<Navigate to="/dashboard" replace/>}/>
+      <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }
 
 export default function App() {
   return (
-    <AuthProvider>
-      <WorkspaceProvider>
-        <BrowserRouter>
-          <AppRoutes/>
-        </BrowserRouter>
-      </WorkspaceProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <WorkspaceProvider>
+          <AppRoutes />
+        </WorkspaceProvider>
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
